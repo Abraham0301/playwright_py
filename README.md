@@ -24,3 +24,11 @@
 ```bash
 pip install pytest-playwright
 playwright install
+
+## 📊 測試報告與架構
+- **Page Object Model**: 採用 POM 模式封裝頁面元素，提升代碼複用性。
+- **HTML Reporting**: 整合 `pytest-html` 插件，執行完畢後自動產出視覺化測試報告。
+
+**執行指令範例：**
+```bash
+python -m pytest --html=report.html --self-contained-html test_login.py
