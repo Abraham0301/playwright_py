@@ -1,34 +1,43 @@
-# Playwright Python Automation Framework
+Playwright Python Automation Framework
+這是一個基於 Python 與 Playwright 的自動化測試練習專案，目前已完成 POM (Page Object Model) 架構實作，並處理了實際自動化測試中會遇到的同步與定位問題。
 
-這是一個基於 **Python** 與 **Playwright** 實作的高品質端到端（E2E）自動化測試專案。本專案模擬真實世界的測試需求，展示了自動化腳本的穩定性設計與除錯技術。
+🛠 技術實作重點
+1. 架構設計 (POM)
+為了讓腳本好維護，我將頁面元素與測試動作封裝在 pages/ 下，避免測試腳本（Test Scripts）過於臃腫：
 
-## 專案亮點
-- **專業斷言機制**：利用 Web-First Assertions（智慧斷言）與 **正規表示法 (Regex)**，確保在動態網頁跳轉中的穩定性。
-- **除錯工具整合**：完整整合 Playwright **Trace Viewer**，可記錄並回放每一格測試動作、網絡請求與控制台日誌。
-- **自動化生命週期**：透過 Pytest 框架管理測試生命週期，具備高度的可擴充性。
-- **容錯設計**：實作智慧等待機制，徹底解決傳統測試中常見的 Flaky Test（不穩定測試）問題。
+login_page.py: 負責導航、登入欄位操作與登出邏輯。
 
----
+pim_page.py: 負責處理 PIM 模組，包含附件區塊的定位與檔案上傳。
 
-##  目錄結構
-- `tests/test_login.py`: 主要測試邏輯（包含 OrangeHRM 登入/登出流程驗證）。
-- `pytest.ini`: 全域測試配置檔（設定自動開啟錄製與瀏覽器參數）。
-- `.gitignore`: 排除快取與測試報告，保持倉庫整潔。
+2. 踩坑與解決方案
+在開發過程中，我針對以下常見的自動化測試問題進行了優化：
 
----
+穩定性優化 (Flaky Test)：原本登出後直接檢查 URL 會因為系統重導向時間差導致 Assertion Error。改用等待「登入按鈕」重新出現（To be visible）後再斷言，解決了測試不穩定的問題。
 
-##  環境安裝與執行
+精準定位 (Strict Mode Violation)：OrangeHRM 頁面存在多個重複的 "Save" 按鈕。我改用 容器定位 方式，先縮定範圍至 .orangehrm-attachment 再尋找按鈕，成功解決 Playwright 找不到唯一元素的問題。
 
-### 1. 安裝環境依賴
-建議使用 Python 3.8+ 環境：
-```bash
-pip install pytest-playwright
+檔案上傳處理：實作了動態路徑獲取，並加入測試後的環境清理機制（自動移除產生的 test_upload.txt）。
+
+📂 專案結構
+Plaintext
+
+/python_playwright
+├── pages/                  # Page Objects (邏輯封裝)
+├── test_login.py           # 登入功能測試
+├── test_upload.py          # 附件上傳功能測試
+├── pytest.ini              # Pytest 配置
+└── .gitignore              # 排除 Cache 與測試報告
+🚀 執行方式
+1. 環境安裝
+Bash
+
+pip install pytest-playwright pytest-html
 playwright install
+2. 執行並產生測試報告
+Bash
 
-## 📊 測試報告與架構
-- **Page Object Model**: 採用 POM 模式封裝頁面元素，提升代碼複用性。
-- **HTML Reporting**: 整合 `pytest-html` 插件，執行完畢後自動產出視覺化測試報告。
+python -m pytest --headed --html=report.html --self-contained-html
+📊 測試現況
+[x] 登入/登出流程：驗證成功，並修復了重導向時的斷言錯誤。
 
-**執行指令範例：**
-```bash
-python -m pytest --html=report.html --self-contained-html test_login.py
+[x] 附件上傳功能：驗證成功，解決了頁面多個 Save 按鈕的定位衝突。
